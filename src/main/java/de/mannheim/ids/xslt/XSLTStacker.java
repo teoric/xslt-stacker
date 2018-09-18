@@ -27,8 +27,6 @@ import javax.xml.transform.stream.StreamSource;
 public class XSLTStacker {
 	
 	private Boolean formatting = false; 
-	private StringWriter sw = new StringWriter();
-	private StreamResult result = new StreamResult(sw);
 	private SAXTransformerFactory stf = (SAXTransformerFactory) new net.sf.saxon.BasicTransformerFactory();
 
 	private ArrayList<TransformerHandler> handlers = new ArrayList<TransformerHandler>();
@@ -71,7 +69,6 @@ public class XSLTStacker {
 			currentHandler.getTransformer().setOutputProperty(OutputKeys.INDENT, "yes");
 			currentHandler.getTransformer().setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
 		}
-		currentHandler.setResult(result);
 	}
 
 
@@ -94,6 +91,9 @@ public class XSLTStacker {
 	 */
 	public String transform(Source source) throws TransformerException {
 		Transformer trans = stf.newTransformer();
+		StringWriter sw = new StringWriter();
+		StreamResult result = new StreamResult(sw);
+		handlers.get(handlers.size() - 1).setResult(result);
 		trans.transform(source, new SAXResult(handlers.get(0)));
 		return sw.toString();
 	}
